@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arriendo de Impresoras Xerox & Kyocera - Cotizador y Planes</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandRed: '#d30d17',
+                        brandRedHover: '#b50a13',
+                        darkBar: '#121212',
+                        imsGrey: '#555555',
+                        xeroxRed: '#da291c',
+                        kyoceraRed: '#e4002b',
+                        lightGrayBg: '#f8f9fa',
+                        waGreen: '#25d366'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e2e8f0;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .carousel-indicator {
+            transition: all 0.3s ease;
+        }
+        
+        .carousel-indicator.active {
+            border-color: #d30d17;
+            background-color: transparent;
+            transform: scale(1.2);
+        }
+
+        @keyframes customPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-wa-pulse {
+            animation: customPulse 2.5s infinite ease-in-out;
+        }
+
+        /* Custom range slider styling */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 22px;
+            width: 22px;
+            border-radius: 50%;
+            background: #d30d17;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        /* Helper for hiding administrative controls in Client View */
+        body.client-mode .admin-only {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="text-gray-900 flex justify-center items-start min-h-screen sm:py-6 client-mode">
+
+    <!-- Main Mobile Layout Simulation Container -->
+    <div class="w-full max-w-md bg-white min-h-screen sm:min-h-[950px] sm:rounded-3xl shadow-2xl overflow-hidden relative flex flex-col justify-between border border-gray-300">
+
+        <div>
+            <!-- -->
+            <!-- Mode Switcher Top Ribbon Bar -->
+            <div id="roleModeBanner" class="bg-slate-900 text-white px-3 py-1.5 flex justify-between items-center text-xs border-b border-slate-800">
+                <div class="flex items-center gap-1.5">
+                    <span id="roleBadge" class="bg-emerald-500 text-slate-900 font-extrabold text-[10px] px-2 py-0.5 rounded-full uppercase">
+                        <i class="fa-solid fa-eye mr-1"></i> Vista Cliente
+                    </span>
+                    <span id="roleDescription" class="text-[10px] text-gray-300 hidden sm:inline">Modo público para clientes</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="btnSwitchRole" onclick="toggleUserRole()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 text-[11px] font-bold px-2.5 py-0.5 rounded-md transition flex items-center gap-1 shadow-sm">
+                        <i class="fa-solid fa-user-gear"></i>
+                        <span id="btnRoleText">Acceso Editor</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Top Red Header Bar with Official IMS Chile Brand Logo -->
+            <header class="bg-brandRed text-white px-3 py-2.5 flex justify-between items-center sticky top-0 z-40 shadow-md">
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleModelSelector()" class="p-1 hover:bg-black/10 rounded-lg transition" aria-label="Abrir Catálogo">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                    
+                    <!-- IMS Chile Logo Visual Representation -->
+                    <div class="flex items-center gap-1.5 cursor-pointer" onclick="toggleModelSelector()">
+                        <div class="relative w-8 h-6 flex items-center justify-center shrink-0">
+                            <!-- IMS Glossy Bubble Dots -->
+                            <div class="absolute bottom-0 left-0 w-5 h-3.5 bg-gray-500 rounded-full border border-gray-300 shadow-inner"></div>
+                            <div class="absolute top-0 right-1 w-3.5 h-3.5 bg-red-600 rounded-full border border-red-300 shadow-sm"></div>
+                            <div class="absolute -top-1 left-2 w-2 h-2 bg-gray-400 rounded-full"></div>
+                        </div>
+                        <div class="flex flex-col leading-none">
+                            <div class="flex items-baseline font-black tracking-tighter text-lg">
+                                <span id="siteHeaderBrandMain" class="text-gray-100 font-extrabold lowercase">ims</span>
+                                <span id="siteHeaderBrandSub" class="text-white font-extrabold ml-0.5">Chile</span>
+                            </div>
+                            <span id="siteHeaderTagline" class="bg-black/30 text-[8px] font-bold tracking-wider px-1 py-0.2 rounded text-red-100 uppercase mt-0.5">Soluciones Tecnológicas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin & Tools Navigation Actions (Admin-Only Controls) -->
+                <div class="flex items-center gap-1.5 text-xs">
+                    <button onclick="openAdminModal()" class="admin-only bg-black/30 hover:bg-black/50 text-white text-[11px] font-bold px-2.5 py-1 rounded-md flex items-center gap-1 border border-white/20 transition shadow-sm" title="Gestor de Inventario e Imágenes">
+                        <i class="fa-solid fa-pen-to-square text-amber-300"></i>
+                        <span>Editar Todo</span>
+                    </button>
+                    <button onclick="openWpIntegrationModal()" class="bg-white/20 hover:bg-white/30 text-white text-[11px] px-2 py-1 rounded-md font-medium flex items-center gap-1 transition" title="WordPress">
+                        <i class="fa-brands fa-wordpress"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Secondary Dark Compare & Brand Filter Bar -->
+            <div class="bg-darkBar text-white px-3 py-2 flex flex-col gap-2 border-b border-gray-800">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2 text-xs font-medium">
+                        <span id="compareCountBadge" class="bg-red-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
+                        <span class="text-xs text-gray-300">impresoras a comparar</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="openAdminModalTab('new')" class="admin-only text-[10px] text-amber-300 hover:underline font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-plus-circle"></i> Nuevo Equipo
+                        </button>
+                        <button onclick="openCompareDrawer()" class="bg-brandRed hover:bg-brandRedHover text-white text-xs font-bold px-4 py-1 rounded-full transition shadow-sm flex items-center gap-1">
+                            Comparar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Fast Brand Filter Switcher Bar -->
+                <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-1 text-[11px] font-semibold">
+                    <button onclick="filterBrand('all')" class="brand-filter-btn active-brand bg-brandRed text-white px-3 py-1 rounded-full whitespace-nowrap shadow-sm">
+                        Todos
+                    </button>
+                    <button onclick="filterBrand('xerox')" class="brand-filter-btn bg-gray-800 hover:bg-gray-700 text-gray-200 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 border border-gray-700">
+                        <span class="w-2 h-2 rounded-full bg-red-500"></span> Xerox
+                    </button>
+                    <button onclick="filterBrand('kyocera')" class="brand-filter-btn bg-gray-800 hover:bg-gray-700 text-gray-200 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 border border-gray-700">
+                        <span class="w-2 h-2 rounded-full bg-red-600"></span> Kyocera
+                    </button>
+                    <button onclick="filterBrand('epson')" class="brand-filter-btn bg-gray-800 hover:bg-gray-700 text-gray-200 px-3 py-1 rounded-full whitespace-nowrap border border-gray-700">
+                        Epson
+                    </button>
+                    <button onclick="filterBrand('canon')" class="brand-filter-btn bg-gray-800 hover:bg-gray-700 text-gray-200 px-3 py-1 rounded-full whitespace-nowrap border border-gray-700">
+                        Canon
+                    </button>
+                </div>
+            </div>
+
+            <!-- Model Switcher Dropdown (Hidden by default) -->
+            <div id="modelSelectorDropdown" class="hidden bg-gray-900 text-white p-3 border-b border-gray-700 animate-fadeIn text-xs z-30">
+                <div class="flex justify-between items-center mb-2">
+                    <p class="text-gray-400 font-bold tracking-wider">INVENTARIO IMS CHILE DISPONIBLE</p>
+                    <div class="flex items-center gap-2">
+                        <button onclick="openAdminModal()" class="text-amber-300 hover:text-white text-[11px] font-bold flex items-center gap-1 bg-amber-500/20 px-2 py-0.5 rounded">
+                            <i class="fa-solid fa-plus"></i> Añadir
+                        </button>
+                        <button onclick="toggleModelSelector()" class="text-gray-400 hover:text-white">
+                            <i class="fa-solid fa-xmark text-base"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2" id="modelDropdownList">
+                    <!-- Dynamic rendering via JS -->
+                </div>
+            </div>
+
+            <!-- Main Hero Image Showcase -->
+            <div class="relative bg-gradient-to-b from-gray-100 to-white pt-2 pb-4 px-3">
+                <div class="relative w-full h-72 sm:h-80 flex items-center justify-center overflow-hidden rounded-2xl bg-white shadow-inner border border-gray-200">
+                    <!-- Background Environment effect -->
+                    <div class="absolute inset-0 bg-cover bg-center opacity-15" style="background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80');"></div>
+                    
+                    <!-- Printer Main Image -->
+                    <img id="mainPrinterImage" src="https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=800&q=80" 
+                         alt="Impresora Industrial Corporativa" 
+                         class="relative z-10 max-h-64 object-contain transition-all duration-300 drop-shadow-xl"
+                         onerror="this.src='https://placehold.co/600x600/f3f4f6/333333?text=IMS+Chile+Impresora'">
+                         
+                    <!-- Top Left Badge -->
+                    <div class="absolute top-3 left-3 z-20 flex flex-col gap-1">
+                        <span id="badgeTech" class="bg-black/80 text-white text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase backdrop-blur-sm shadow flex items-center gap-1">
+                            <i class="fa-solid fa-shield-halved text-emerald-400"></i> Mantención & Tóner Incluido
+                        </span>
+                        <span id="badgePromo" class="bg-red-600 text-white text-[9px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider w-fit shadow">
+                            Garantía IMS Chile
+                        </span>
+                    </div>
+
+                    <!-- Quick Edit Image & Compare Buttons -->
+                    <div class="absolute bottom-3 right-3 z-20 flex gap-1.5">
+                        <button onclick="editCurrentModelImage()" class="admin-only bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs px-2.5 py-1.5 rounded-full shadow-md font-bold flex items-center gap-1 transition" title="Subir / Cambiar Foto">
+                            <i class="fa-solid fa-image"></i> <span>Subir Foto</span>
+                        </button>
+                        <button onclick="toggleCompare()" id="btnAddToCompare" class="bg-white/95 hover:bg-white text-gray-800 text-xs px-3 py-1.5 rounded-full shadow-md border border-gray-300 font-bold flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-plus text-brandRed"></i> <span id="compareBtnText">Comparar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Info & Primary CTA -->
+            <div class="px-5 pt-1 pb-3">
+                <div class="mb-3 flex justify-between items-start">
+                    <div>
+                        <p id="brandCategory" class="text-[11px] font-extrabold text-brandRed uppercase tracking-widest">MULTIFUNCIONAL COLOR XEROX ALTO RENDIMIENTO</p>
+                        <h1 id="printerBrandName" class="text-3xl font-black text-gray-900 tracking-tight leading-none mt-0.5">Xerox</h1>
+                        <h2 id="printerModelName" class="text-xl font-bold text-gray-700 mt-1">AltaLink C8145</h2>
+                    </div>
+                    <button onclick="openAdminModalForCurrent()" class="admin-only text-gray-400 hover:text-brandRed p-1 rounded-lg border border-gray-200 hover:border-brandRed transition" title="Editar detalles de este equipo">
+                        <i class="fa-solid fa-gear text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Estimated Price Badge -->
+                <div class="bg-slate-900 text-white p-3 rounded-2xl mb-4 flex justify-between items-center shadow-md border border-gray-800">
+                    <div>
+                        <div class="text-[10px] uppercase font-bold text-gray-400">Arriendo Mensual Estimado</div>
+                        <div class="flex items-baseline gap-1">
+                            <span id="priceDisplay" class="text-2xl font-black text-yellow-400">$89.900</span>
+                            <span class="text-xs text-gray-300">/ mes + IVA</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded border border-emerald-500/30">
+                            Cero Inversión
+                        </span>
+                        <div class="text-[10px] text-gray-400 mt-0.5">Soporte IMS Directo</div>
+                    </div>
+                </div>
+
+                <!-- Big Red Call To Action Button -->
+                <button onclick="openQuoteModal()" class="w-full bg-brandRed hover:bg-brandRedHover text-white font-extrabold text-base py-3.5 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-signature text-lg"></i>
+                    <span>Cotizar Arriendo Ahora</span>
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Quick Spec Badges Grid -->
+            <div class="px-5 py-3 border-y border-gray-200 bg-gray-50 grid grid-cols-2 gap-3 text-xs">
+                <div class="flex items-center gap-2.5 p-2 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center text-brandRed shrink-0 font-bold">
+                        <i class="fa-solid fa-gauge-high text-lg"></i>
+                    </div>
+                    <div>
+                        <div id="specSpeed" class="font-extrabold text-gray-900 leading-tight">45 ppm</div>
+                        <div class="text-[10px] text-gray-500">Velocidad Impresión</div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2.5 p-2 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="w-10 h-10 rounded-lg bg-cyan-50 flex items-center justify-center text-cyan-600 shrink-0 font-bold">
+                        <i class="fa-solid fa-microchip text-lg"></i>
+                    </div>
+                    <div>
+                        <div id="specTech" class="font-extrabold text-gray-900 leading-tight">ConnectKey</div>
+                        <div class="text-[10px] text-gray-500">Tecnología Inteligente</div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2.5 p-2 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0 font-bold">
+                        <i class="fa-solid fa-copy text-lg"></i>
+                    </div>
+                    <div>
+                        <div id="specCapacity" class="font-extrabold text-gray-900 leading-tight">3.140 Hojas</div>
+                        <div class="text-[10px] text-gray-500">Capacidad Papel</div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2.5 p-2 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0 font-bold">
+                        <i class="fa-solid fa-headset text-lg"></i>
+                    </div>
+                    <div>
+                        <div id="specSla" class="font-extrabold text-gray-900 leading-tight">SLA &lt; 4 hrs</div>
+                        <div class="text-[10px] text-gray-500">Técnicos IMS Chile</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RENTAL PLAN TIER MATRIX SECTION -->
+            <div class="px-5 py-6 bg-white border-b border-gray-200">
+                <div class="text-center mb-4">
+                    <span class="bg-red-100 text-brandRed text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                        Planes Corporativos IMS Chile
+                    </span>
+                    <h3 class="text-xl font-extrabold text-gray-900 mt-1">Elige tu Plan de Arriendo</h3>
+                    <p class="text-xs text-gray-500">Todos los planes incluyen instalación, repuestos, toners y mantención técnica.</p>
+                </div>
+
+                <!-- Plan Cards Slider / Grid -->
+                <div class="space-y-3">
+                    <!-- Plan 1: PYME Start -->
+                    <div class="plan-card border-2 border-gray-200 hover:border-brandRed p-4 rounded-2xl transition cursor-pointer bg-white relative">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h4 class="font-bold text-gray-900 text-base">Plan PYME / Start</h4>
+                                <p class="text-[11px] text-gray-500">Ideal para oficinas pequeñas (1 a 10 usuarios)</p>
+                            </div>
+                            <span class="bg-gray-100 text-gray-700 text-[10px] font-bold px-2 py-0.5 rounded">Hasta 3.000 págs/mes</span>
+                        </div>
+                        <div class="flex items-baseline gap-1 my-2">
+                            <span class="text-2xl font-black text-gray-900">$39.900</span>
+                            <span class="text-xs text-gray-500">/ mes + IVA</span>
+                        </div>
+                        <ul class="text-xs space-y-1.5 text-gray-600 my-3">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i> Impresora Láser Multifuncional Dúplex</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i> 1.500 páginas B/N + 300 páginas Color incl.</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i> Reemplazo de tóner automatizado</li>
+                        </ul>
+                        <button onclick="selectPlanAndQuote('Plan PYME / Start', 39900)" class="w-full bg-gray-100 hover:bg-brandRed hover:text-white text-gray-900 font-bold py-2 rounded-xl text-xs transition">
+                            Seleccionar Plan PYME
+                        </button>
+                    </div>
+
+                    <!-- Plan 2: Oficina Pro (FEATURED) -->
+                    <div class="plan-card border-2 border-brandRed p-4 rounded-2xl transition cursor-pointer bg-red-50/40 relative shadow-sm">
+                        <div class="absolute -top-3 right-4 bg-brandRed text-white text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full shadow">
+                            RECOMENDADO IMS
+                        </div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h4 class="font-bold text-gray-900 text-base">Plan Oficina PRO</h4>
+                                <p class="text-[11px] text-gray-600">Para equipos de trabajo medianos (10 a 30 usuarios)</p>
+                            </div>
+                            <span class="bg-red-100 text-brandRed text-[10px] font-bold px-2 py-0.5 rounded">Hasta 15.000 págs/mes</span>
+                        </div>
+                        <div class="flex items-baseline gap-1 my-2">
+                            <span class="text-2xl font-black text-brandRed">$79.900</span>
+                            <span class="text-xs text-gray-500">/ mes + IVA</span>
+                        </div>
+                        <ul class="text-xs space-y-1.5 text-gray-700 my-3 font-medium">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i> Equipos Xerox / Kyocera High Speed</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i> 5.000 páginas B/N + 1.000 páginas Color incl.</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i> Autenticación de usuarios por PIN / Tarjeta</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i> Respuesta técnica presencial &lt; 4 horas</li>
+                        </ul>
+                        <button onclick="selectPlanAndQuote('Plan Oficina PRO', 79900)" class="w-full bg-brandRed hover:bg-brandRedHover text-white font-bold py-2.5 rounded-xl text-xs transition shadow">
+                            Cotizar Plan Oficina PRO
+                        </button>
+                    </div>
+
+                    <!-- Plan 3: Corporativo Enterprise -->
+                    <div class="plan-card border-2 border-gray-200 hover:border-brandRed p-4 rounded-2xl transition cursor-pointer bg-white relative">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h4 class="font-bold text-gray-900 text-base">Plan Corporativo Enterprise</h4>
+                                <p class="text-[11px] text-gray-500">Para flotas de alta exigencia y gran volumen</p>
+                            </div>
+                            <span class="bg-gray-100 text-gray-700 text-[10px] font-bold px-2 py-0.5 rounded">20.000+ págs/mes</span>
+                        </div>
+                        <div class="flex items-baseline gap-1 my-2">
+                            <span class="text-2xl font-black text-gray-900">$139.900</span>
+                            <span class="text-xs text-gray-500">/ mes + IVA</span>
+                        </div>
+                        <ul class="text-xs space-y-1.5 text-gray-600 my-3">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i> Equipos de producción hasta 70 ppm</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i> Módulos de acabado (grapado, folletos, perforado)</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i> Software uniFLOW / Equitrac para control de costos</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i> Reemplazo de equipo en 24h ante fallas críticas</li>
+                        </ul>
+                        <button onclick="selectPlanAndQuote('Plan Corporativo Enterprise', 139900)" class="w-full bg-gray-100 hover:bg-brandRed hover:text-white text-gray-900 font-bold py-2 rounded-xl text-xs transition">
+                            Seleccionar Plan Corporativo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE VOLUME CALCULATOR & RECOMMENDATOR -->
+            <div class="px-5 py-6 bg-slate-900 text-white border-b border-gray-800">
+                <div class="flex items-center gap-2 mb-1 text-red-400 font-extrabold text-xs tracking-wider uppercase">
+                    <i class="fa-solid fa-calculator"></i> Cotizador Inteligente IMS Chile
+                </div>
+                <h3 class="text-xl font-bold mb-1">Calcula tu costo según tu consumo</h3>
+                <p class="text-xs text-gray-400 mb-4">Ajusta las páginas mensuales para ver la recomendación ideal Xerox o Kyocera.</p>
+
+                <div class="bg-gray-800/80 p-4 rounded-2xl border border-gray-700 space-y-4">
+                    <div>
+                        <div class="flex justify-between items-center text-xs mb-1">
+                            <span class="font-bold text-gray-300">Volumen Estimado Mensual:</span>
+                            <span id="calcPageValue" class="font-black text-yellow-400 text-sm">12.000 Páginas</span>
+                        </div>
+                        <input type="range" id="volumeRange" min="1000" max="50000" step="1000" value="12000" oninput="updateVolumeCalc()" class="w-full bg-gray-700 h-2 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-gray-400 mt-1">
+                            <span>1.000 págs</span>
+                            <span>25.000 págs</span>
+                            <span>50.000+ págs</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                            <label class="block text-[10px] text-gray-400 mb-1">Tipo de Impresión</label>
+                            <select id="calcType" onchange="updateVolumeCalc()" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-2 text-xs text-white focus:outline-none">
+                                <option value="color">Predominante Color</option>
+                                <option value="bw">Solo Blanco y Negro</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-gray-400 mb-1">Duración Contrato</label>
+                            <select id="calcTerm" onchange="updateVolumeCalc()" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-2 text-xs text-white focus:outline-none">
+                                <option value="24" selected>24 Meses (Recomendado)</option>
+                                <option value="36">36 Meses (-10% Desc.)</option>
+                                <option value="12">12 Meses</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-gray-700 flex justify-between items-center">
+                        <div>
+                            <div class="text-[10px] text-gray-400">Equipo Sugerido:</div>
+                            <div id="calcRecommendedModel" class="font-bold text-xs text-emerald-400">Kyocera TASKalfa 3554ci</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-[10px] text-gray-400">Estimado Mensual:</div>
+                            <div id="calcEstimatedPrice" class="font-black text-yellow-400 text-lg">$69.900 + IVA</div>
+                        </div>
+                    </div>
+
+                    <button onclick="quoteFromCalculator()" class="w-full bg-brandRed hover:bg-brandRedHover text-white font-bold py-2 rounded-xl text-xs transition shadow">
+                        Cotizar con esta Configuración
+                    </button>
+                </div>
+            </div>
+
+            <!-- Model Description Section -->
+            <div class="px-5 py-6">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2 tracking-tight">Descripción del modelo</h3>
+                <p id="modelDescriptionText" class="text-gray-600 text-sm leading-relaxed">
+                    Aumente la productividad laboral con la plataforma Xerox ConnectKey. Diseñada para flujos de trabajo de alto volumen con seguridad de grado bancario integrada, digitalización instantánea en la nube y bajísimos costos por copia. Incluye servicio técnico preventivo presencial y reabastecimiento inteligente de toners garantizado por IMS Chile.
+                </p>
+
+                <!-- Value Proposition Highlights -->
+                <div class="mt-4 grid grid-cols-1 gap-2">
+                    <div class="flex items-start gap-2 text-xs text-gray-700 bg-emerald-50 p-2.5 rounded-lg border border-emerald-100">
+                        <i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i>
+                        <span><strong>Todo Incluido IMS Chile:</strong> Instalación, insumos originales, repuestos y servicio técnico presencial.</span>
+                    </div>
+                    <div class="flex items-start gap-2 text-xs text-gray-700 bg-blue-50 p-2.5 rounded-lg border border-blue-100">
+                        <i class="fa-solid fa-shield-cat text-blue-600 mt-0.5"></i>
+                        <span><strong>Cero Inversión Inicial:</strong> Plan 100% deducible de impuestos como gasto operativo (OPEX).</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Image Carousel Section 1: Panel & Pantalla -->
+            <div class="px-5 py-4 border-t border-gray-100">
+                <h3 class="text-xl font-bold text-gray-900 text-center mb-3">Interfaz & Control Táctil</h3>
+                
+                <div class="relative">
+                    <div id="carouselPanel" class="overflow-hidden rounded-2xl bg-gray-100 aspect-video shadow-md relative border">
+                        <img id="carouselImgPanel" src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80" 
+                             alt="Pantalla Táctil de Control" class="w-full h-full object-cover transition-opacity duration-300">
+                        <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 text-white text-xs">
+                            <span id="carouselCaptionPanel" class="font-medium">Pantalla táctil reclinable de 10.1" personalizada estilo smartphone</span>
+                        </div>
+                    </div>
+
+                    <!-- Pagination Dots Slider -->
+                    <div class="flex justify-center items-center gap-2.5 mt-3">
+                        <button onclick="setCarouselSlide('panel', 0)" class="carousel-indicator indicator-panel w-3.5 h-3.5 rounded-full border-2 border-gray-400 bg-gray-400 active" aria-label="Slide 1"></button>
+                        <button onclick="setCarouselSlide('panel', 1)" class="carousel-indicator indicator-panel w-3.5 h-3.5 rounded-full border-2 border-gray-400 bg-gray-400" aria-label="Slide 2"></button>
+                        <button onclick="setCarouselSlide('panel', 2)" class="carousel-indicator indicator-panel w-3.5 h-3.5 rounded-full border-2 border-gray-400 bg-gray-400" aria-label="Slide 3"></button>
+                        <button onclick="setCarouselSlide('panel', 3)" class="carousel-indicator indicator-panel w-3.5 h-3.5 rounded-full border-2 border-gray-400 bg-gray-400" aria-label="Slide 4"></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Image Carousel Section 2: Alimentación & Finisado -->
+            <div class="px-5 py-4 mb-8">
+                <h3 class="text-xl font-bold text-gray-900 text-center mb-3">Módulos de Papel & Acabado</h3>
+                
+                <div class="relative">
+                    <div id="carouselModules" class="overflow-hidden rounded-2xl bg-gray-100 aspect-video shadow-md relative border">
+                        <img id="carouselImgModules" src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=800&q=80" 
+                             alt="Bandejas de Papel" class="w-full h-full object-cover transition-opacity duration-300">
+                        <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 text-white text-xs">
+                            <span id="carouselCaptionModules" class="font-medium">Bandejas tándem de alta capacidad para papel Carta, Oficio y A3/Tabloide</span>
+                        </div>
+                    </div>
+
+                    <!-- Pagination Dots Slider -->
+                    <div class="flex justify-center items-center gap-2.5 mt-3">
+                        <button onclick="setCarouselSlide('modules', 0)" class="carousel-indicator indicator-modules w-3.5 h-3.5 rounded-full border-2 border-gray-400 bg-gray-400 active" aria-label="Slide 1"></button>
+                        <button onclick="setCarouselSlide('modules', 1)" class="carousel-indicator indicator-modules w-3.5 h-3.5 rounded-full border-2 border-gray-400 bg-gray-400" aria-label="Slide 2"></button>
+                        <button onclick="setCarouselSlide('modules', 2)" class="carousel-indicator indicator-modules w-3.5 h-3.5 rounded-full border-2 border-gray-400 bg-gray-400" aria-label="Slide 3"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating WhatsApp Widget Component -->
+        <div class="sticky bottom-4 px-4 pb-2 z-30 flex justify-end items-center pointer-events-none">
+            <div class="pointer-events-auto flex items-center gap-2 bg-white/95 backdrop-blur-sm pl-3 pr-2 py-1.5 rounded-full shadow-2xl border border-gray-200 animate-wa-pulse">
+                <span class="text-xs font-bold text-gray-800 tracking-tight">¿Asesoría IMS Chile?</span>
+                <a id="waDirectLink" href="https://wa.me/56912345678?text=Hola,%20quisiera%20cotizar%20el%20arriendo%20de%20una%20impresora%20con%20IMS%20Chile" target="_blank" rel="noopener noreferrer" 
+                   class="w-10 h-10 rounded-full bg-waGreen hover:bg-emerald-600 text-white flex items-center justify-center shadow-md transition-transform transform active:scale-90">
+                    <i class="fa-brands fa-whatsapp text-2xl"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer Branding Bar with IMS Chile logo -->
+        <footer class="bg-gray-900 text-gray-400 text-[11px] text-center py-4 px-4 border-t border-gray-800 flex flex-col items-center gap-1.5">
+            <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1 font-black tracking-tight text-white text-sm">
+                    <span class="text-gray-400 font-extrabold lowercase">ims</span>
+                    <span class="text-red-500 font-extrabold">Chile</span>
+                </div>
+                <span class="text-gray-600">|</span>
+                <span class="text-gray-300 font-medium">Soluciones Tecnológicas</span>
+            </div>
+            <p>© 2026 IMS Chile SpA - Arriendo de Impresoras Xerox & Kyocera</p>
+            <p class="text-[9px] text-gray-500">Mantenimiento, Repuestos e Insumos Incluidos en Chile</p>
+        </footer>
+    </div>
+
+    <!-- INVENTORY & IMAGE EDITOR MODAL (ADMIN PANEL) -->
+    <div id="adminModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 animate-fadeIn">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col">
+            <!-- Modal Header -->
+            <div class="bg-slate-900 text-white px-4 py-3 flex justify-between items-center border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-amber-500 text-slate-900 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-sm leading-tight text-white">Panel Administrador & Edición</h3>
+                        <p class="text-[10px] text-amber-400 font-medium">Gestiona Inventario, Imágenes y Datos</p>
+                    </div>
+                </div>
+                <button onclick="closeAdminModal()" class="text-gray-400 hover:text-white p-1 rounded-full">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Admin Body & Tabs -->
+            <div class="p-4 overflow-y-auto space-y-4 text-xs">
+                
+                <!-- Quick Navigation Tabs -->
+                <!-- -->
+                <div class="flex bg-gray-100 p-1 rounded-xl gap-1 overflow-x-auto no-scrollbar">
+                    <button onclick="switchAdminTab('edit')" id="tabBtnEdit" class="flex-1 min-w-[75px] py-1.5 font-bold rounded-lg bg-white shadow text-slate-900 text-[11px] transition">
+                        <i class="fa-solid fa-pen-to-square"></i> Equipo
+                    </button>
+                    <button onclick="switchAdminTab('new')" id="tabBtnNew" class="flex-1 min-w-[75px] py-1.5 font-bold rounded-lg text-gray-600 hover:text-black text-[11px] transition">
+                        <i class="fa-solid fa-plus-circle"></i> Agregar
+                    </button>
+                    <button onclick="switchAdminTab('global')" id="tabBtnGlobal" class="flex-1 min-w-[75px] py-1.5 font-bold rounded-lg text-gray-600 hover:text-black text-[11px] transition">
+                        <i class="fa-solid fa-gear"></i> Sitio
+                    </button>
+                    <button onclick="switchAdminTab('list')" id="tabBtnList" class="flex-1 min-w-[75px] py-1.5 font-bold rounded-lg text-gray-600 hover:text-black text-[11px] transition">
+                        <i class="fa-solid fa-list-check"></i> Catálogo
+                    </button>
+                </div>
+
+                <!-- Tab 1: Edit Active Equipment Form -->
+                <div id="adminTabEdit" class="space-y-3">
+                    <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl text-amber-900 flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase text-amber-700 block">Modificando Equipo Activo:</span>
+                            <span id="adminActiveModelTitle" class="font-extrabold text-sm text-slate-900">Xerox AltaLink C8145</span>
+                        </div>
+                        <select id="adminModelSelector" onchange="switchPrinterModel(this.value); loadAdminFormForCurrent();" class="bg-white border border-amber-300 text-xs rounded-lg p-1.5 font-bold focus:outline-none">
+                            <!-- Populated via JS -->
+                        </select>
+                    </div>
+
+                    <form id="adminForm" onsubmit="handleAdminSave(event)" class="space-y-3">
+                        <!-- Direct File Upload or Image URL Selector -->
+                        <div class="bg-gray-50 border border-gray-200 p-3 rounded-xl space-y-2">
+                            <label class="block font-bold text-gray-800 text-xs">Imagen de la Impresora *</label>
+
+                            <!-- Direct Local File Upload Input -->
+                            <div class="flex items-center gap-2">
+                                <label class="flex-1 bg-white hover:bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-2 text-center cursor-pointer transition">
+                                    <i class="fa-solid fa-cloud-arrow-up text-brandRed text-base mr-1"></i>
+                                    <span class="text-[11px] font-bold text-gray-700">Cargar Archivo Local</span>
+                                    <input type="file" id="adminFileInput" accept="image/*" onchange="handleImageFileUpload(event, 'adminImgUrl')" class="hidden">
+                                </label>
+                            </div>
+
+                            <!-- Image URL fallback -->
+                            <div>
+                                <span class="text-[10px] text-gray-500 font-medium">O pega una URL directa de la imagen:</span>
+                                <div class="flex gap-2 mt-0.5">
+                                    <input type="url" id="adminImgUrl" required placeholder="https://..." class="flex-1 px-3 py-1.5 border rounded-lg focus:outline-none focus:border-brandRed font-mono text-[11px]">
+                                    <button type="button" onclick="previewAdminImg()" class="bg-gray-800 text-white font-bold px-3 py-1.5 rounded-lg hover:bg-black transition">
+                                        Ver
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Image Presets Selector -->
+                            <div>
+                                <span class="text-[10px] text-gray-500 font-bold block mb-1">Imágenes de Muestra Incorporadas:</span>
+                                <div class="grid grid-cols-4 gap-1.5">
+                                    <button type="button" onclick="setAdminImgPreset('https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=800&q=80')" class="border rounded p-1 hover:border-brandRed bg-white">
+                                        <img src="https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=100&q=80" class="h-8 object-contain mx-auto">
+                                    </button>
+                                    <button type="button" onclick="setAdminImgPreset('https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=800&q=80')" class="border rounded p-1 hover:border-brandRed bg-white">
+                                        <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=100&q=80" class="h-8 object-contain mx-auto">
+                                    </button>
+                                    <button type="button" onclick="setAdminImgPreset('https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80')" class="border rounded p-1 hover:border-brandRed bg-white">
+                                        <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=100&q=80" class="h-8 object-contain mx-auto">
+                                    </button>
+                                    <button type="button" onclick="setAdminImgPreset('https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80')" class="border rounded p-1 hover:border-brandRed bg-white">
+                                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=100&q=80" class="h-8 object-contain mx-auto">
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Marca</label>
+                                <input type="text" id="adminBrand" required placeholder="Xerox" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-brandRed">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Modelo</label>
+                                <input type="text" id="adminModel" required placeholder="AltaLink C8145" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-brandRed">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Precio Mensual ($ CL) *</label>
+                                <input type="number" id="adminPrice" required placeholder="89900" class="w-full px-3 py-2 border rounded-lg font-bold text-brandRed focus:outline-none focus:border-brandRed">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Velocidad (PPM)</label>
+                                <input type="text" id="adminSpeed" required placeholder="45 ppm" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-brandRed">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Tecnología</label>
+                                <input type="text" id="adminTech" required placeholder="ConnectKey" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-brandRed">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Capacidad Papel</label>
+                                <input type="text" id="adminCapacity" required placeholder="3.140 Hojas" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-brandRed">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">Categoría / Título Comercial</label>
+                            <input type="text" id="adminCategory" required placeholder="MULTIFUNCIONAL COLOR XEROX ALTO RENDIMIENTO" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-brandRed uppercase">
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">Descripción Comercial del Producto</label>
+                            <textarea id="adminDescription" rows="3" required placeholder="Descripción del equipo..." class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-brandRed"></textarea>
+                        </div>
+
+                        <div class="flex gap-2 pt-2">
+                            <button type="submit" class="flex-1 bg-brandRed hover:bg-brandRedHover text-white font-extrabold py-3 rounded-xl shadow transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>Guardar Cambios</span>
+                            </button>
+                            <button type="button" onclick="deleteCurrentModel()" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-4 rounded-xl transition" title="Eliminar este equipo del catálogo">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tab 2: Create New Equipment Form -->
+                <div id="adminTabNew" class="hidden space-y-3">
+                    <form id="adminNewForm" onsubmit="handleAddNewPrinter(event)" class="space-y-3">
+                        <div class="bg-blue-50 border border-blue-200 p-2.5 rounded-xl text-blue-900">
+                            <span class="font-bold text-xs block">Agregar Nuevo Equipo al Catálogo IMS</span>
+                            <span class="text-[10px] text-blue-700">Se agregará a las opciones de arriendo y cotizador interactivo.</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Marca *</label>
+                                <select id="newBrand" required class="w-full px-3 py-2 border rounded-lg focus:outline-none">
+                                    <option value="Xerox">Xerox</option>
+                                    <option value="Kyocera">Kyocera</option>
+                                    <option value="Epson">Epson</option>
+                                    <option value="Canon">Canon</option>
+                                    <option value="HP">HP</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Modelo *</label>
+                                <input type="text" id="newModel" required placeholder="Ej: B405 / 4054ci" class="w-full px-3 py-2 border rounded-lg">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">Precio Arriendo Mensual ($) *</label>
+                            <input type="number" id="newPrice" required placeholder="49900" class="w-full px-3 py-2 border rounded-lg font-bold text-brandRed">
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">Imagen del Equipo *</label>
+                            <div class="flex items-center gap-2 mb-1">
+                                <label class="flex-1 bg-white hover:bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-2 text-center cursor-pointer transition">
+                                    <i class="fa-solid fa-upload text-blue-600 text-sm mr-1"></i>
+                                    <span class="text-[11px] font-bold text-gray-700">Subir desde Computador</span>
+                                    <input type="file" id="newFileInput" accept="image/*" onchange="handleImageFileUpload(event, 'newImgUrl')" class="hidden">
+                                </label>
+                            </div>
+                            <input type="url" id="newImgUrl" required value="https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=800&q=80" class="w-full px-3 py-2 border rounded-lg font-mono text-[11px]" placeholder="o URL directa">
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Velocidad</label>
+                                <input type="text" id="newSpeed" required placeholder="40 ppm" class="w-full px-3 py-2 border rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Tecnología</label>
+                                <input type="text" id="newTech" required placeholder="Laser" class="w-full px-3 py-2 border rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Capacidad</label>
+                                <input type="text" id="newCapacity" required placeholder="2.000 Hojas" class="w-full px-3 py-2 border rounded-lg">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">Descripción</label>
+                            <textarea id="newDescription" rows="2" required placeholder="Breve descripción corporativa..." class="w-full px-3 py-2 border rounded-lg"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-xl shadow transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Crear e Insertar Equipo</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Tab 3: Global Site Settings -->
+                <!-- -->
+                <div id="adminTabGlobal" class="hidden space-y-3">
+                    <form onsubmit="handleGlobalSettingsSave(event)" class="space-y-3">
+                        <div class="bg-indigo-50 border border-indigo-200 p-2.5 rounded-xl text-indigo-900">
+                            <span class="font-bold text-xs block">Personalización de Marca y Contactos</span>
+                            <span class="text-[10px] text-indigo-700">Edita el nombre de tu empresa, WhatsApp de ventas y número de PIN.</span>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">Nombre de la Empresa</label>
+                            <input type="text" id="siteGlobalBrand" value="IMS Chile" required class="w-full px-3 py-2 border rounded-lg font-bold">
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">Bajada / Eslogan del Logo</label>
+                            <input type="text" id="siteGlobalTagline" value="Soluciones Tecnológicas" required class="w-full px-3 py-2 border rounded-lg">
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">Número de WhatsApp (con código país)</label>
+                            <input type="text" id="siteGlobalWa" value="56912345678" required class="w-full px-3 py-2 border rounded-lg font-mono">
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">PIN de Acceso al Modo Editor</label>
+                            <input type="password" id="siteGlobalPin" value="1234" required class="w-full px-3 py-2 border rounded-lg font-mono">
+                            <span class="text-[10px] text-gray-500">PIN predeterminado: 1234</span>
+                        </div>
+
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl shadow transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>Guardar Configuración General</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Tab 4: Catalog List / JSON Backup -->
+                <div id="adminTabList" class="hidden space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-gray-800">Equipos Registrados (<span id="adminCatalogCount">0</span>)</span>
+                        <button onclick="resetCatalogToDefaults()" class="text-xs text-red-600 hover:underline font-bold">
+                            Restablecer Originales
+                        </button>
+                    </div>
+
+                    <div id="adminCatalogListItems" class="space-y-2 max-h-60 overflow-y-auto">
+                        <!-- Dynamic rendered list -->
+                    </div>
+
+                    <div class="pt-2 border-t">
+                        <button onclick="exportInventoryJSON()" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-download"></i> Respaldar Inventario en JSON
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- PIN SECURITY LOGIN MODAL -->
+    <div id="pinModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-xs rounded-2xl shadow-2xl overflow-hidden p-5 text-center">
+            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h3 class="font-extrabold text-base text-gray-900 mb-1">Acceso Modo Editor</h3>
+            <p class="text-xs text-gray-500 mb-4">Ingresa el PIN de seguridad para editar el sitio (por defecto: <strong class="text-gray-700">1234</strong>)</p>
+
+            <form onsubmit="verifyAdminPin(event)" class="space-y-3">
+                <input type="password" id="pinInput" placeholder="PIN de 4 dígitos" required class="w-full px-3 py-2 text-center text-lg font-mono font-bold border rounded-xl focus:outline-none focus:border-brandRed">
+                <div id="pinErrorMsg" class="text-red-600 font-bold text-xs hidden">PIN Incorrecto</div>
+
+                <div class="flex gap-2">
+                    <button type="button" onclick="closePinModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-2 rounded-xl text-xs">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="flex-1 bg-brandRed text-white font-bold py-2 rounded-xl text-xs shadow">
+                        Ingresar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- QUOTATION MODAL -->
+    <div id="quoteModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col transform transition-transform duration-300">
+            <!-- Modal Header -->
+            <div class="bg-brandRed text-white px-5 py-4 flex justify-between items-center">
+                <div>
+                    <h3 class="font-extrabold text-lg leading-tight">Solicitud de Cotización IMS Chile</h3>
+                    <p id="modalModelSubtitle" class="text-xs text-red-100">Xerox AltaLink C8145 - Plan Oficina PRO</p>
+                </div>
+                <button onclick="closeQuoteModal()" class="text-white/80 hover:text-white p-1 rounded-full hover:bg-black/10">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form Body -->
+            <div class="p-5 overflow-y-auto space-y-4">
+                <form id="quoteForm" onsubmit="handleQuoteSubmit(event)" class="space-y-3">
+                    <input type="hidden" id="selectedPlanInput" value="Plan Oficina PRO">
+                    
+                    <div class="bg-red-50 p-3 rounded-xl border border-red-100 text-xs flex justify-between items-center">
+                        <div>
+                            <span class="text-gray-500 font-bold block text-[10px]">EQUIPO SELECCIONADO:</span>
+                            <span id="modalPrinterTitle" class="font-bold text-gray-900">Xerox AltaLink C8145</span>
+                        </div>
+                        <span id="modalPriceTag" class="font-black text-brandRed bg-white px-2 py-1 rounded shadow-sm text-xs">$89.900/mes</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nombre Completo *</label>
+                        <input type="text" id="quoteName" required placeholder="Ej: Carlos Mendoza" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-brandRed">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Empresa *</label>
+                            <input type="text" id="quoteCompany" required placeholder="Mi Empresa SpA" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-brandRed">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">RUT Empresa *</label>
+                            <input type="text" id="quoteRut" required placeholder="76.123.456-7" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-brandRed">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Email Corporativo *</label>
+                            <input type="email" id="quoteEmail" required placeholder="contacto@empresa.cl" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-brandRed">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Teléfono Móvil *</label>
+                            <input type="tel" id="quotePhone" required placeholder="+56 9 8765 4321" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-brandRed">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Volumen Estimado Mensual (Páginas)</label>
+                        <select id="quoteVolumeSelect" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-brandRed">
+                            <option>1.000 a 5.000 págs/mes</option>
+                            <option selected>5.000 a 15.000 págs/mes</option>
+                            <option>15.000 a 40.000 págs/mes</option>
+                            <option>Más de 50.000 págs/mes</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Plazo Preferido de Contrato</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <label class="border border-gray-300 rounded-lg p-2 text-center text-xs font-medium cursor-pointer hover:border-brandRed">
+                                <input type="radio" name="term" value="12" class="sr-only">
+                                12 Meses
+                            </label>
+                            <label class="border border-brandRed bg-red-50 rounded-lg p-2 text-center text-xs font-bold text-brandRed cursor-pointer">
+                                <input type="radio" name="term" value="24" checked class="sr-only">
+                                24 Meses
+                            </label>
+                            <label class="border border-gray-300 rounded-lg p-2 text-center text-xs font-medium cursor-pointer hover:border-brandRed">
+                                <input type="radio" name="term" value="36" class="sr-only">
+                                36 Meses (-10%)
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-brandRed hover:bg-brandRedHover text-white font-extrabold py-3.5 rounded-xl shadow-md transition mt-2 flex items-center justify-center gap-2">
+                        <i class="fa-paper-plane text-sm"></i>
+                        <span>Enviar Cotización Oficial IMS</span>
+                    </button>
+                </form>
+
+                <!-- Success State Overlay inside modal -->
+                <div id="quoteSuccessMessage" class="hidden text-center py-8 space-y-3">
+                    <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900">¡Solicitud Recibida por IMS Chile!</h4>
+                    <p class="text-xs text-gray-600">Un ejecutivo comercial te enviará la propuesta en formato PDF a tu correo corporativo en menos de 15 minutos.</p>
+                    <div class="pt-2">
+                        <a id="successWaBtn" href="#" target="_blank" class="inline-flex items-center gap-2 bg-waGreen text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-emerald-600 transition">
+                            <i class="fa-brands fa-whatsapp text-lg"></i>
+                            Acelerar respuesta por WhatsApp
+                        </a>
+                    </div>
+                    <button onclick="closeQuoteModal()" class="mt-4 text-xs text-gray-500 hover:text-black underline block mx-auto">
+                        Cerrar Ventana
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPARISON DRAWER -->
+    <div id="compareDrawer" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-end justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-t-3xl shadow-2xl overflow-hidden p-5 max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b">
+                <div>
+                    <h3 class="font-extrabold text-lg text-gray-900">Comparativa de Impresoras IMS</h3>
+                    <p class="text-xs text-gray-500">Xerox, Kyocera & Marcas Líderes</p>
+                </div>
+                <button onclick="closeCompareDrawer()" class="text-gray-500 hover:text-black">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div id="compareListContent" class="space-y-3 text-xs">
+                <!-- Dynamic or default slots -->
+            </div>
+
+            <button onclick="closeCompareDrawer(); openQuoteModal();" class="w-full bg-brandRed text-white font-extrabold py-3 rounded-xl shadow mt-5 text-sm flex items-center justify-center gap-2">
+                <i class="fa-solid fa-file-invoice"></i>
+                <span>Solicitar Cotización Comparativa</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- WORDPRESS INTEGRATION MODAL WITH IMS CHILE BRANDING -->
+    <div id="wpModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden p-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start mb-3 border-b pb-3">
+                <div>
+                    <h3 class="font-extrabold text-lg text-gray-900 flex items-center gap-2">
+                        <i class="fa-brands fa-wordpress text-blue-600 text-xl"></i>
+                        Integración con WordPress (IMS Chile)
+                    </h3>
+                    <p class="text-xs text-gray-500">Cómo insertar este cotizador interactivo en tu sitio web</p>
+                </div>
+                <button onclick="closeWpIntegrationModal()" class="text-gray-400 hover:text-black">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 text-xs">
+                <div>
+                    <p class="font-bold text-gray-800 mb-1">Opción 1: Insertar en Elementor, Divi o Gutenberg (Bloque HTML)</p>
+                    <p class="text-gray-600 mb-2">Copia el siguiente código en un bloque **HTML Personalizado**:</p>
+                    <div class="bg-gray-900 text-emerald-400 p-3 rounded-xl font-mono text-[11px] relative overflow-x-auto select-all">
+                        <code>&lt;iframe src="https://imschile.cl/cotizador-impresoras" width="100%" height="950" frameborder="0" style="border:0; border-radius:16px;" allowfullscreen&gt;&lt;/iframe&gt;</code>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="font-bold text-gray-800 mb-1">Opción 2: Plantilla de Página WordPress</p>
+                    <p class="text-gray-600 mb-2">Puedes incrustar este archivo `index.html` directamente dentro de tu tema hijo (`wp-content/themes/your-theme/page-cotizador.php`).</p>
+                </div>
+
+                <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-amber-800">
+                    <p class="font-bold flex items-center gap-1 mb-0.5">
+                        <i class="fa-solid fa-lightbulb"></i> Nota del Gestor de Inventario:
+                    </p>
+                    <p class="text-[11px]">Todos los cambios realizados desde el botón **"Editar"** en este cotizador se guardan localmente. Si deseas exportar o duplicar este catálogo a otro sitio, utiliza la función **"Respaldar Inventario en JSON"** dentro del panel.</p>
+                </div>
+            </div>
+
+            <button onclick="closeWpIntegrationModal()" class="w-full bg-gray-900 text-white font-bold py-2.5 rounded-xl text-xs mt-5">
+                Entendido, Cerrar
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Extended Database of available printer models with LocalStorage Persistence
+        const defaultPrinterDatabase = {
+            xerox_c8145: {
+                brand: "Xerox",
+                model: "AltaLink C8145",
+                brandKey: "xerox",
+                category: "MULTIFUNCIONAL COLOR XEROX ALTO RENDIMIENTO",
+                mainImage: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=800&q=80",
+                speed: "45 ppm",
+                tech: "ConnectKey",
+                capacity: "3.140 Hojas",
+                price: 89900,
+                description: "Aumente la productividad laboral con la plataforma Xerox ConnectKey. Diseñada para flujos de trabajo de alto volumen con seguridad de grado bancario integrada, digitalización instantánea en la nube y bajísimos costos por copia. Incluye servicio técnico preventivo presencial y reabastecimiento inteligente de toners garantizado por IMS Chile.",
+                carouselPanel: [
+                    { img: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80", caption: "Pantalla táctil reclinable de 10.1\" personalizada estilo smartphone" },
+                    { img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80", caption: "Lector de tarjetas RFID/NFC para liberación segura de impresión" }
+                ],
+                carouselModules: [
+                    { img: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=800&q=80", caption: "Bandejas tándem de alta capacidad para papel Carta, Oficio y A3/Tabloide" }
+                ]
+            },
+            kyocera_3554: {
+                brand: "Kyocera",
+                model: "TASKalfa 3554ci",
+                brandKey: "kyocera",
+                category: "TECNOLOGÍA ECOSYS DE ALTA EFICIENCIA Y BAJO IMPACTO",
+                mainImage: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=800&q=80",
+                speed: "35 ppm",
+                tech: "ECOSYS / AI",
+                capacity: "4.150 Hojas",
+                price: 69900,
+                description: "La Kyocera TASKalfa 3554ci combina durabilidad industrial con inteligencia artificial para la optimización de documentos. Con tambores de larga vida de silicio amorfo, reduce las visitas técnicas a cero y asegura un funcionamiento continuo con respaldo IMS Chile.",
+                carouselPanel: [
+                    { img: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80", caption: "Pantalla capacitiva de 10.1 pulgadas con interfaz ultra intuitiva" }
+                ],
+                carouselModules: [
+                    { img: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80", caption: "Alimentador masivo de resmas continuas hasta 3.000 hojas" }
+                ]
+            }
+        };
+
+        // Site Settings State
+        const defaultSiteSettings = {
+            brandName: "IMS Chile",
+            tagline: "Soluciones Tecnológicas",
+            whatsapp: "56912345678",
+            pin: "1234"
+        };
+
+        let printerDatabase = JSON.parse(localStorage.getItem('ims_printer_inventory')) || defaultPrinterDatabase;
+        let siteSettings = JSON.parse(localStorage.getItem('ims_site_settings')) || defaultSiteSettings;
+
+        let currentUserRole = 'client'; // 'client' or 'admin'
+        let currentModelKey = 'xerox_c8145';
+        let isComparing = false;
+        let selectedPlan = 'Plan Oficina PRO';
+        let activeCarouselIndexes = { panel: 0, modules: 0 };
+
+        // Save inventory & settings to LocalStorage
+        function saveInventoryToStorage() {
+            localStorage.setItem('ims_printer_inventory', JSON.stringify(printerDatabase));
+        }
+
+        function saveSettingsToStorage() {
+            localStorage.setItem('ims_site_settings', JSON.stringify(siteSettings));
+        }
+
+        // Initialize Page
+        window.addEventListener('DOMContentLoaded', () => {
+            applySiteSettings();
+            renderModelDropdown();
+            if (!printerDatabase[currentModelKey]) {
+                currentModelKey = Object.keys(printerDatabase)[0] || 'xerox_c8145';
+            }
+            switchPrinterModel(currentModelKey);
+            updateVolumeCalc();
+            renderCompareDrawerContent();
+            updateRoleUI();
+        });
+
+        // Toggle User Role (Client vs Admin Mode)
+        function toggleUserRole() {
+            if (currentUserRole === 'client') {
+                document.getElementById('pinModal').classList.remove('hidden');
+                document.getElementById('pinInput').value = '';
+                document.getElementById('pinErrorMsg').classList.add('hidden');
+                document.getElementById('pinInput').focus();
+            } else {
+                currentUserRole = 'client';
+                updateRoleUI();
+            }
+        }
+
+        function closePinModal() {
+            document.getElementById('pinModal').classList.add('hidden');
+        }
+
+        function verifyAdminPin(e) {
+            e.preventDefault();
+            const entered = document.getElementById('pinInput').value;
+            if (entered === siteSettings.pin) {
+                currentUserRole = 'admin';
+                closePinModal();
+                updateRoleUI();
+                openAdminModal();
+            } else {
+                document.getElementById('pinErrorMsg').classList.remove('hidden');
+            }
+        }
+
+        function updateRoleUI() {
+            const body = document.body;
+            const badge = document.getElementById('roleBadge');
+            const desc = document.getElementById('roleDescription');
+            const btnText = document.getElementById('btnRoleText');
+
+            if (currentUserRole === 'admin') {
+                body.classList.remove('client-mode');
+                badge.className = "bg-amber-400 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full uppercase";
+                badge.innerHTML = `<i class="fa-solid fa-lock-open mr-1"></i> Modo Editor Activo`;
+                desc.innerText = "Puedes modificar todos los datos";
+                btnText.innerText = "Salir del Modo Editor";
+            } else {
+                body.classList.add('client-mode');
+                badge.className = "bg-emerald-500 text-slate-900 font-extrabold text-[10px] px-2 py-0.5 rounded-full uppercase";
+                badge.innerHTML = `<i class="fa-solid fa-eye mr-1"></i> Vista Cliente`;
+                desc.innerText = "Modo público para clientes";
+                btnText.innerText = "Acceso Editor";
+            }
+        }
+
+        // Apply Custom Global Site Settings
+        function applySiteSettings() {
+            document.getElementById('siteHeaderBrandMain').innerText = siteSettings.brandName.toLowerCase();
+            document.getElementById('siteHeaderBrandSub').innerText = siteSettings.brandName;
+            document.getElementById('siteHeaderTagline').innerText = siteSettings.tagline;
+
+            document.getElementById('siteGlobalBrand').value = siteSettings.brandName;
+            document.getElementById('siteGlobalTagline').value = siteSettings.tagline;
+            document.getElementById('siteGlobalWa').value = siteSettings.whatsapp;
+            document.getElementById('siteGlobalPin').value = siteSettings.pin;
+        }
+
+        function handleGlobalSettingsSave(e) {
+            e.preventDefault();
+            siteSettings.brandName = document.getElementById('siteGlobalBrand').value;
+            siteSettings.tagline = document.getElementById('siteGlobalTagline').value;
+            siteSettings.whatsapp = document.getElementById('siteGlobalWa').value;
+            siteSettings.pin = document.getElementById('siteGlobalPin').value;
+
+            saveSettingsToStorage();
+            applySiteSettings();
+            switchPrinterModel(currentModelKey);
+
+            // Replacement for standard alert
+            const badge = document.getElementById('roleBadge');
+            badge.innerText = "¡Configuración Guardada!";
+            setTimeout(() => updateRoleUI(), 2000);
+            closeAdminModal();
+        }
+
+        // Local Image File Upload Reader (Base64 conversion)
+        function handleImageFileUpload(event, targetInputId) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                document.getElementById(targetInputId).value = dataUrl;
+                if (targetInputId === 'adminImgUrl') previewAdminImg();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Render Dynamic Model Selector Dropdown
+        function renderModelDropdown(brandFilter = 'all') {
+            const container = document.getElementById('modelDropdownList');
+            container.innerHTML = '';
+
+            Object.keys(printerDatabase).forEach(key => {
+                const item = printerDatabase[key];
+                if (brandFilter !== 'all' && item.brandKey !== brandFilter) return;
+
+                const btn = document.createElement('button');
+                btn.className = "p-2 rounded bg-gray-800 hover:bg-brandRed text-left transition border border-gray-700 flex flex-col justify-between";
+                btn.onclick = () => { switchPrinterModel(key); toggleModelSelector(); };
+                btn.innerHTML = `
+                    <div class="font-extrabold text-white">${item.brand} ${item.model}</div>
+                    <div class="text-[10px] text-yellow-400 font-bold mt-1">$${item.price.toLocaleString('es-CL')}/mes</div>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        // Toggle Model Dropdown
+        function toggleModelSelector() {
+            const dropdown = document.getElementById('modelSelectorDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        // Filter Catalog by Brand
+        function filterBrand(brand) {
+            document.querySelectorAll('.brand-filter-btn').forEach(b => {
+                b.classList.remove('bg-brandRed', 'text-white', 'active-brand');
+                b.classList.add('bg-gray-800', 'text-gray-200');
+            });
+            event.currentTarget.classList.add('bg-brandRed', 'text-white', 'active-brand');
+            event.currentTarget.classList.remove('bg-gray-800', 'text-gray-200');
+
+            renderModelDropdown(brand);
+
+            const firstKey = Object.keys(printerDatabase).find(k => brand === 'all' || printerDatabase[k].brandKey === brand);
+            if (firstKey) switchPrinterModel(firstKey);
+        }
+
+        // Switch Active Printer Model
+        function switchPrinterModel(modelKey) {
+            if (!printerDatabase[modelKey]) return;
+            currentModelKey = modelKey;
+            const data = printerDatabase[modelKey];
+
+            document.getElementById('brandCategory').innerText = data.category || "MULTIFUNCIONAL CORPORATIVA";
+            document.getElementById('printerBrandName').innerText = data.brand;
+            document.getElementById('printerModelName').innerText = data.model;
+            document.getElementById('mainPrinterImage').src = data.mainImage;
+            document.getElementById('specSpeed').innerText = data.speed;
+            document.getElementById('specTech').innerText = data.tech;
+            document.getElementById('specCapacity').innerText = data.capacity;
+            document.getElementById('priceDisplay').innerText = `$${data.price.toLocaleString('es-CL')}`;
+            document.getElementById('modelDescriptionText').innerText = data.description;
+            
+            document.getElementById('modalPrinterTitle').innerText = `${data.brand} ${data.model}`;
+            document.getElementById('modalPriceTag').innerText = `$${data.price.toLocaleString('es-CL')}/mes`;
+            document.getElementById('modalModelSubtitle').innerText = `${data.brand} ${data.model} - ${selectedPlan}`;
+
+            // Update WhatsApp link with dynamic custom number
+            const waMsg = encodeURIComponent(`Hola ${siteSettings.brandName}, me interesa solicitar cotización de arriendo para el equipo ${data.brand} ${data.model} (${selectedPlan}).`);
+            document.getElementById('waDirectLink').href = `https://wa.me/${siteSettings.whatsapp}?text=${waMsg}`;
+
+            // Reset Carousels
+            activeCarouselIndexes.panel = 0;
+            activeCarouselIndexes.modules = 0;
+            updateCarouselDOM('panel');
+            updateCarouselDOM('modules');
+        }
+
+        // Carousel Controller
+        function setCarouselSlide(type, index) {
+            activeCarouselIndexes[type] = index;
+            updateCarouselDOM(type);
+        }
+
+        function updateCarouselDOM(type) {
+            const data = printerDatabase[currentModelKey];
+            if (!data) return;
+            const slides = (type === 'panel') ? (data.carouselPanel || []) : (data.carouselModules || []);
+            const idx = activeCarouselIndexes[type];
+
+            const imgEl = (type === 'panel') ? document.getElementById('carouselImgPanel') : document.getElementById('carouselImgModules');
+            const capEl = (type === 'panel') ? document.getElementById('carouselCaptionPanel') : document.getElementById('carouselCaptionModules');
+            const indicators = document.querySelectorAll(`.indicator-${type}`);
+
+            if (!slides || slides.length === 0 || !slides[idx]) {
+                imgEl.src = data.mainImage;
+                capEl.innerText = `${data.brand} ${data.model} - ${siteSettings.brandName}`;
+                return;
+            }
+
+            imgEl.style.opacity = '0.3';
+            setTimeout(() => {
+                imgEl.src = slides[idx].img;
+                capEl.innerText = slides[idx].caption;
+                imgEl.style.opacity = '1';
+            }, 120);
+
+            indicators.forEach((ind, i) => {
+                if (i === idx) {
+                    ind.classList.add('active', 'border-brandRed', 'bg-transparent');
+                    ind.classList.remove('bg-gray-400', 'border-gray-400');
+                } else {
+                    ind.classList.remove('active', 'border-brandRed', 'bg-transparent');
+                    ind.classList.add('bg-gray-400', 'border-gray-400');
+                }
+            });
+        }
+
+        // Volume Calculator Logic
+        function updateVolumeCalc() {
+            const pages = parseInt(document.getElementById('volumeRange').value);
+            const term = parseInt(document.getElementById('calcTerm').value);
+
+            document.getElementById('calcPageValue').innerText = `${pages.toLocaleString('es-CL')} Páginas/mes`;
+
+            let recModel = "Xerox VersaLink C7030";
+            let basePrice = 59900;
+
+            if (pages <= 5000) {
+                recModel = "Xerox VersaLink C7030";
+                basePrice = 59900;
+            } else if (pages <= 15000) {
+                recModel = "Kyocera TASKalfa 3554ci";
+                basePrice = 69900;
+            } else if (pages <= 30000) {
+                recModel = "Xerox AltaLink C8145";
+                basePrice = 89900;
+            } else {
+                recModel = "Kyocera TASKalfa 7054ci High Speed";
+                basePrice = 129900;
+            }
+
+            if (term === 36) basePrice = Math.round(basePrice * 0.9);
+
+            document.getElementById('calcRecommendedModel').innerText = recModel;
+            document.getElementById('calcEstimatedPrice').innerText = `$${basePrice.toLocaleString('es-CL')} + IVA`;
+        }
+
+        function quoteFromCalculator() {
+            const recModelName = document.getElementById('calcRecommendedModel').innerText;
+            const matchingKey = Object.keys(printerDatabase).find(k => `${printerDatabase[k].brand} ${printerDatabase[k].model}`.includes(recModelName.split(' ')[1]));
+            if (matchingKey) switchPrinterModel(matchingKey);
+            openQuoteModal();
+        }
+
+        // Select Plan & Open Modal
+        function selectPlanAndQuote(planName, planPrice) {
+            selectedPlan = planName;
+            document.getElementById('selectedPlanInput').value = planName;
+            const currentData = printerDatabase[currentModelKey];
+            document.getElementById('modalModelSubtitle').innerText = `${currentData.brand} ${currentData.model} - ${planName}`;
+            openQuoteModal();
+        }
+
+        // Compare Toggle
+        function toggleCompare() {
+            isComparing = !isComparing;
+            const btnText = document.getElementById('compareBtnText');
+            const badge = document.getElementById('compareCountBadge');
+
+            if (isComparing) {
+                btnText.innerText = "Quitar";
+                badge.innerText = "1";
+            } else {
+                btnText.innerText = "Comparar";
+                badge.innerText = "0";
+            }
+        }
+
+        function renderCompareDrawerContent() {
+            const container = document.getElementById('compareListContent');
+            const keys = Object.keys(printerDatabase);
+            if (keys.length === 0) return;
+
+            const m1 = printerDatabase[currentModelKey] || printerDatabase[keys[0]];
+            const m2Key = keys.find(k => k !== currentModelKey) || keys[0];
+            const m2 = printerDatabase[m2Key];
+
+            container.innerHTML = `
+                <div class="p-3 bg-red-50/50 rounded-xl border border-red-200 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <img src="${m1.mainImage}" class="w-12 h-12 object-contain bg-white rounded-lg border p-1">
+                        <div>
+                            <p class="font-extrabold text-gray-900">${m1.brand} ${m1.model}</p>
+                            <p class="text-[11px] text-gray-500">${m1.speed} | ${m1.tech}</p>
+                            <span class="text-brandRed font-bold text-[10px]">$${m1.price.toLocaleString('es-CL')}/mes</span>
+                        </div>
+                    </div>
+                    <span class="text-emerald-700 font-bold bg-emerald-100 text-[10px] px-2 py-1 rounded">Activo</span>
+                </div>
+
+                <div class="p-3 bg-gray-50 rounded-xl border flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <img src="${m2.mainImage}" class="w-12 h-12 object-contain bg-white rounded-lg border p-1">
+                        <div>
+                            <p class="font-extrabold text-gray-900">${m2.brand} ${m2.model}</p>
+                            <p class="text-[11px] text-gray-500">${m2.speed} | ${m2.tech}</p>
+                            <span class="text-brandRed font-bold text-[10px]">$${m2.price.toLocaleString('es-CL')}/mes</span>
+                        </div>
+                    </div>
+                    <button onclick="switchPrinterModel('${m2Key}'); closeCompareDrawer();" class="bg-gray-900 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg hover:bg-brandRed">
+                        Ver Equipo
+                    </button>
+                </div>
+            `;
+        }
+
+        function openCompareDrawer() {
+            renderCompareDrawerContent();
+            document.getElementById('compareDrawer').classList.remove('hidden');
+        }
+
+        function closeCompareDrawer() {
+            document.getElementById('compareDrawer').classList.add('hidden');
+        }
+
+        // Quote Modal Handlers
+        function openQuoteModal() {
+            document.getElementById('quoteModal').classList.remove('hidden');
+            document.getElementById('quoteForm').classList.remove('hidden');
+            document.getElementById('quoteSuccessMessage').classList.add('hidden');
+        }
+
+        function closeQuoteModal() {
+            document.getElementById('quoteModal').classList.add('hidden');
+        }
+
+        function handleQuoteSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('quoteName').value;
+            const comp = document.getElementById('quoteCompany').value;
+            const currentData = printerDatabase[currentModelKey];
+
+            document.getElementById('quoteForm').classList.add('hidden');
+            document.getElementById('quoteSuccessMessage').classList.remove('hidden');
+
+            const waMsg = encodeURIComponent(`Hola ${siteSettings.brandName}, soy ${name} de la empresa ${comp}. Acabo de solicitar cotización para el equipo ${currentData.brand} ${currentData.model} (${selectedPlan}).`);
+            document.getElementById('successWaBtn').href = `https://wa.me/${siteSettings.whatsapp}?text=${waMsg}`;
+        }
+
+        // WordPress Modal Handlers
+        function openWpIntegrationModal() {
+            document.getElementById('wpModal').classList.remove('hidden');
+        }
+
+        function closeWpIntegrationModal() {
+            document.getElementById('wpModal').classList.add('hidden');
+        }
+
+        // --- INVENTORY & IMAGE EDITOR (ADMIN PANEL) LOGIC ---
+        function openAdminModal() {
+            populateAdminModelSelector();
+            loadAdminFormForCurrent();
+            renderAdminCatalogList();
+            document.getElementById('adminModal').classList.remove('hidden');
+        }
+
+        function openAdminModalTab(tab) {
+            openAdminModal();
+            switchAdminTab(tab);
+        }
+
+        function openAdminModalForCurrent() {
+            openAdminModal();
+            switchAdminTab('edit');
+        }
+
+        function editCurrentModelImage() {
+            openAdminModalForCurrent();
+            document.getElementById('adminFileInput').click();
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+
+        function switchAdminTab(tab) {
+            document.getElementById('adminTabEdit').classList.add('hidden');
+            document.getElementById('adminTabNew').classList.add('hidden');
+            document.getElementById('adminTabGlobal').classList.add('hidden');
+            document.getElementById('adminTabList').classList.add('hidden');
+
+            const inactiveClass = "flex-1 min-w-[75px] py-1.5 font-bold rounded-lg text-gray-600 hover:text-black text-[11px] transition";
+            const activeClass = "flex-1 min-w-[75px] py-1.5 font-bold rounded-lg bg-white shadow text-slate-900 text-[11px] transition";
+
+            document.getElementById('tabBtnEdit').className = inactiveClass;
+            document.getElementById('tabBtnNew').className = inactiveClass;
+            document.getElementById('tabBtnGlobal').className = inactiveClass;
+            document.getElementById('tabBtnList').className = inactiveClass;
+
+            if (tab === 'edit') {
+                document.getElementById('adminTabEdit').classList.remove('hidden');
+                document.getElementById('tabBtnEdit').className = activeClass;
+            } else if (tab === 'new') {
+                document.getElementById('adminTabNew').classList.remove('hidden');
+                document.getElementById('tabBtnNew').className = activeClass;
+            } else if (tab === 'global') {
+                document.getElementById('adminTabGlobal').classList.remove('hidden');
+                document.getElementById('tabBtnGlobal').className = activeClass;
+            } else if (tab === 'list') {
+                document.getElementById('adminTabList').classList.remove('hidden');
+                document.getElementById('tabBtnList').className = activeClass;
+                renderAdminCatalogList();
+            }
+        }
+
+        function populateAdminModelSelector() {
+            const selector = document.getElementById('adminModelSelector');
+            selector.innerHTML = '';
+            Object.keys(printerDatabase).forEach(k => {
+                const opt = document.createElement('option');
+                opt.value = k;
+                opt.innerText = `${printerDatabase[k].brand} ${printerDatabase[k].model}`;
+                if (k === currentModelKey) opt.selected = true;
+                selector.appendChild(opt);
+            });
+        }
+
+        function loadAdminFormForCurrent() {
+            const data = printerDatabase[currentModelKey];
+            if (!data) return;
+
+            document.getElementById('adminActiveModelTitle').innerText = `${data.brand} ${data.model}`;
+            document.getElementById('adminImgUrl').value = data.mainImage;
+            document.getElementById('adminBrand').value = data.brand;
+            document.getElementById('adminModel').value = data.model;
+            document.getElementById('adminPrice').value = data.price;
+            document.getElementById('adminSpeed').value = data.speed;
+            document.getElementById('adminTech').value = data.tech;
+            document.getElementById('adminCapacity').value = data.capacity;
+            document.getElementById('adminCategory').value = data.category;
+            document.getElementById('adminDescription').value = data.description;
+        }
+
+        function setAdminImgPreset(url) {
+            document.getElementById('adminImgUrl').value = url;
+            previewAdminImg();
+        }
+
+        function previewAdminImg() {
+            const url = document.getElementById('adminImgUrl').value;
+            if (url) {
+                document.getElementById('mainPrinterImage').src = url;
+            }
+        }
+
+        function handleAdminSave(e) {
+            e.preventDefault();
+            const data = printerDatabase[currentModelKey];
+            if (!data) return;
+
+            data.mainImage = document.getElementById('adminImgUrl').value;
+            data.brand = document.getElementById('adminBrand').value;
+            data.model = document.getElementById('adminModel').value;
+            data.price = parseInt(document.getElementById('adminPrice').value) || 0;
+            data.speed = document.getElementById('adminSpeed').value;
+            data.tech = document.getElementById('adminTech').value;
+            data.capacity = document.getElementById('adminCapacity').value;
+            data.category = document.getElementById('adminCategory').value;
+            data.description = document.getElementById('adminDescription').value;
+
+            saveInventoryToStorage();
+            switchPrinterModel(currentModelKey);
+            renderModelDropdown();
+
+            closeAdminModal();
+        }
+
+        function handleAddNewPrinter(e) {
+            e.preventDefault();
+            const brand = document.getElementById('newBrand').value;
+            const model = document.getElementById('newModel').value;
+            const key = `${brand.toLowerCase()}_${model.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+
+            printerDatabase[key] = {
+                brand: brand,
+                model: model,
+                brandKey: brand.toLowerCase(),
+                category: `MULTIFUNCIONAL ${brand.toUpperCase()}`,
+                mainImage: document.getElementById('newImgUrl').value,
+                speed: document.getElementById('newSpeed').value,
+                tech: document.getElementById('newTech').value,
+                capacity: document.getElementById('newCapacity').value,
+                price: parseInt(document.getElementById('newPrice').value) || 49900,
+                description: document.getElementById('newDescription').value,
+                carouselPanel: [],
+                carouselModules: []
+            };
+
+            saveInventoryToStorage();
+            renderModelDropdown();
+            switchPrinterModel(key);
+            closeAdminModal();
+        }
+
+        function deleteCurrentModel() {
+            const keys = Object.keys(printerDatabase);
+            if (keys.length <= 1) return;
+
+            delete printerDatabase[currentModelKey];
+            saveInventoryToStorage();
+            renderModelDropdown();
+            currentModelKey = Object.keys(printerDatabase)[0];
+            switchPrinterModel(currentModelKey);
+            closeAdminModal();
+        }
+
+        function renderAdminCatalogList() {
+            const container = document.getElementById('adminCatalogListItems');
+            const keys = Object.keys(printerDatabase);
+            document.getElementById('adminCatalogCount').innerText = keys.length;
+            container.innerHTML = '';
+
+            keys.forEach(k => {
+                const item = printerDatabase[k];
+                const div = document.createElement('div');
+                div.className = "p-2 bg-gray-50 rounded-lg border flex justify-between items-center text-xs";
+                div.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <img src="${item.mainImage}" class="w-8 h-8 object-contain bg-white rounded border">
+                        <div>
+                            <span class="font-bold block">${item.brand} ${item.model}</span>
+                            <span class="text-brandRed font-semibold text-[10px]">$${item.price.toLocaleString('es-CL')}/mes</span>
+                        </div>
+                    </div>
+                    <button onclick="switchPrinterModel('${k}'); openAdminModalForCurrent();" class="text-amber-600 hover:text-amber-800 font-bold px-2 py-1 bg-amber-50 rounded border border-amber-200">
+                        Editar
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function resetCatalogToDefaults() {
+            printerDatabase = defaultPrinterDatabase;
+            siteSettings = defaultSiteSettings;
+            saveInventoryToStorage();
+            saveSettingsToStorage();
+            applySiteSettings();
+            renderModelDropdown();
+            switchPrinterModel('xerox_c8145');
+            closeAdminModal();
+        }
+
+        function exportInventoryJSON() {
+            const dataToExport = {
+                inventory: printerDatabase,
+                settings: siteSettings
+            };
+            const jsonStr = JSON.stringify(dataToExport, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'IMS_Chile_Configuracion_Completa.json';
+            a.click();
+        }
+
+        // Close on ESC
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeQuoteModal();
+                closeCompareDrawer();
+                closeWpIntegrationModal();
+                closeAdminModal();
+                closePinModal();
+            }
+        });
+    </script>
+</body>
+</html>
